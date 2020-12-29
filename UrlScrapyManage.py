@@ -17,26 +17,35 @@ class UrlScrapyManage(QThread):
     signal_progress = pyqtSignal(str, str)
     signal_end = pyqtSignal()
 
-    def __init__(self, scrawlUrl="", parent=None):
+    def __init__(self, scrawlUrlArr=[], parent=None):
         super(UrlScrapyManage, self).__init__(parent)
-        self.scrawlUrl = scrawlUrl
+        self.scrawlUrlArr = scrawlUrlArr
+        self.scrawlUrl = ""
         self.vistedLinkList = []
         self.urlQueue = Queue()
         self.processCount = 5
         self.resultList = []
 
     def run(self):
-        self.signal_log.emit("开始扫描")
-        self.vistedLinkList.append(self.scrawlUrl)
-        self.urlQueue.put(self.scrawlUrl)
+        self.signal_log[str,str].emit("扫描开始","blue")
+        self.signal_log.emit("")
         visitCount = 0
-        while not self.urlQueue.empty():
-            nowUrl = self.urlQueue.get()
-            visitCount = visitCount + 1
-            remainCount = self.urlQueue.qsize()
-            self.signal_progress.emit(str(visitCount),str(remainCount))
-            self.scrapyProcess(nowUrl)
-        self.signal_log.emit("扫描结束")
+        for scrawlUrl in self.scrawlUrlArr:
+            self.signal_log[str,str].emit("开始扫描URL：{0}".format(scrawlUrl),"blue")
+            self.signal_log.emit("")
+            self.scrawlUrl = scrawlUrl
+            self.vistedLinkList.append(self.scrawlUrl)
+            self.urlQueue.put(self.scrawlUrl)
+            while not self.urlQueue.empty():
+                nowUrl = self.urlQueue.get()
+                visitCount = visitCount + 1
+                remainCount = self.urlQueue.qsize()
+                self.signal_progress.emit(str(visitCount),str(remainCount))
+                self.scrapyProcess(nowUrl)
+            self.signal_log.emit("")
+            self.signal_log[str,str].emit("结束扫描URL：{0}".format(scrawlUrl),"blue")
+            self.signal_log.emit("")
+        self.signal_log[str,str].emit("扫描结束","blue")
         self.signal_end.emit()
 
     # 访问并分析URL，生成多个能正常访问的结果字典并写入结果队列
