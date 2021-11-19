@@ -162,6 +162,8 @@ class UrlScrapyManage(QThread):
             else:
                 # 与网站域名结合
                 reList.append(urllib.parse.urljoin(nowDomain, link))
+                # 与输入网址相结合
+                reList.append(urllib.parse.urljoin(self.scrawlUrl, link))
                 # 与js文件域名结合
                 reList.append(urllib.parse.urljoin(nowUrlDomain, link))
                 # 与js文件地址结合
