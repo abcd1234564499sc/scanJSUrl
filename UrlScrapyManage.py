@@ -158,7 +158,9 @@ class UrlScrapyManage(QThread):
             link = endPattern.sub("", link)
             if httpPattern.match(link):
                 # 链接自带协议，是完整的地址
-                reList.append(link)
+                # 判断是否属于爬取域名的子域名
+                if myUtils.ifSameMainDomain(nowDomain, myUtils.getUrlDomain(link)):
+                    reList.append(link)
             else:
                 # 与网站域名结合
                 reList.append(urllib.parse.urljoin(nowDomain, link))
